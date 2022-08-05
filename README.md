@@ -20,9 +20,9 @@ The server consist of multiple components that run on Docker container. With Doc
 1. [Docker](https://www.docker.com/)
 2. [Docker-Compose](https://docs.docker.com/compose/)
 
-## Download the pre-trained model
+## Download and prepare the pre-trained model
 
-1. Download the pre-trained model from [here]() and unzip the file
+1. Download the pre-trained model from [here](https://drive.google.com/file/d/1-vhyLZMFA6welUwXFiLerDwA3f3THqm8/view?usp=sharing) and unzip the file
 2. copy the model to saved_model/
 
     ```
