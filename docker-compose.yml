@@ -1,0 +1,80 @@
+version: '3.3'
+services:
+  mysql:
+    container_name: db
+    build: ./docker/mysql
+    restart: always
+    tty: true
+    ports:
+      - 3306:3306
+    volumes:
+      - ./log/mysql:/var/log/mysql
+      - ./docker/mysql/initdb.d:/docker-entrypoint-initdb.d
+      - ./docker/mysql/conf.d:/etc/mysql/conf.d
+      - db_data:/var/lib/mysql
+    environment:
+      TZ: Asia/Hong_Kong
+      MYSQL_DATABASE: mysql_record
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    networks:
+      - asr-net
+
+  front:
+    links:
+      - mysql
+    container_name: front
+    build: ./docker/front
+    volumes:
+      - ./code:/usr/src/server
+    ports:
+      - 8081:8000
+    environment:
+      TZ: Asia/Hong_Kong
+      MYSQL_DATABASE: mysql_record
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+      EXTRACT_PW: Mq14YxgJuAjO401F
+    networks:
+      - asr-net
+
+  model:
+    links:
+      - mysql
+      - sv
+    container_name: model
+    build: ./docker/model
+    volumes:
+      - ./code:/wd
+      - ./saved_model:/saved_model
+      - ./audio:/audio
+    environment:
+      TZ: Asia/Hong_Kong
+      MYSQL_DATABASE: mysql_record
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+      SLEEP_TIME: 5
+    command: 'asr_loop_mt.py'
+    networks:
+      - asr-net
+
+  sv:
+    container_name: sv
+    image: tensorflow/serving:latest
+    volumes:
+      - ./saved_model/asr:/models/asr
+      - ./saved_model/lm:/models/lm
+      - ./saved_model/models.config:/models/models.config
+    command: '--model_config_file=/models/models.config'
+    networks:
+      - asr-net
+
+networks:
+  asr-net:
+    driver: bridge
+
+volumes:
+  db_data:

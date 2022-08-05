@@ -1,0 +1,5 @@
+numpy
+tensorflow==2.4.0
+python_speech_features==0.6
+pydub==0.25.1
+scipy==1.7.1
